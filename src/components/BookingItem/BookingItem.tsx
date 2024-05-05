@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Card, Empty, Button, Typography, Space } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
@@ -16,10 +16,14 @@ const BookingItem = ({
   selectedDate: Dayjs;
 }) => {
   const { openDetails } = useCreateEditBookingContext();
+  const title = useMemo(
+    () => (info?.phone ? `${info.name}, ${info.phone}` : info?.name),
+    [info]
+  );
   if (info)
     return (
       <Card
-        title={info.date}
+        title={title}
         className="cardStyle"
         extra={
           <Button
@@ -31,9 +35,9 @@ const BookingItem = ({
         }
       >
         <Space direction="vertical">
-          <Text>{info.name}</Text>
+          <Text>Date: {info.date}</Text>
           <Text>
-            {info.address} {info.place}
+            Address: {info.address} {info.place}
           </Text>
           {info.updatedAt && (
             <Text type="secondary">{`Last updated: ${dayjs
