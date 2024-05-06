@@ -20,7 +20,7 @@ const webpackConfig = () => ({
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.tsx$/,
         loader: "ts-loader",
         options: {
           transpileOnly: true,
