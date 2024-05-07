@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Calendar, Spin, Select, Typography, Row, Col } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import localeData from "dayjs/plugin/localeData";
-import { BookingItemType } from "../types/BookingType";
-import { fireStoreDb } from "../firebase/config";
+import { BookingItemType } from "../../types/BookingType";
+import { fireStoreDb } from "../../firebase/config";
 import { collection, onSnapshot } from "firebase/firestore";
 import "./Home.scss";
-import BookingItem from "../components/BookingItem/BookingItem";
-import NewBooking from "../components/NewBooking/NewBooking";
+import BookingItem from "../../components/BookingItem/BookingItem";
+import NewBooking from "../../components/NewBooking/NewBooking";
+import { useAuthContext } from "../../contexts/AuthContextProvider";
 
 dayjs.extend(localeData);
 
@@ -16,6 +17,7 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [bookedDates, setBookedDates] = useState<number[]>([]);
+  const { user } = useAuthContext();
 
   useEffect(() => {
     setLoading(true);
@@ -33,10 +35,8 @@ const Home = () => {
   const getData = useCallback(
     (value: Dayjs) => {
       if (data) {
-        return data.find(
-          (d: BookingItemType) =>
-            d.bookingDate && value.isSame(dayjs(d.bookingDate), "day")
-        );
+        const valueUnix = value.startOf("d").unix();
+        return data.find((d: BookingItemType) => d.bookingDate === valueUnix);
       }
       return undefined;
     },
@@ -107,8 +107,15 @@ const Home = () => {
           );
         }}
       />
-      <BookingItem info={getData(selectedDate)} selectedDate={selectedDate} />
-      <NewBooking bookedDates={bookedDates} />
+      {user && (
+        <>
+          <BookingItem
+            info={getData(selectedDate)}
+            selectedDate={selectedDate}
+          />
+          <NewBooking bookedDates={bookedDates} />
+        </>
+      )}
     </div>
   );
 };
