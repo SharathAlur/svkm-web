@@ -1,10 +1,16 @@
-import React, { useMemo } from "react";
-import { Card, Empty, Button, Typography, Space } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import React, { useCallback, useMemo } from "react";
+import { Card, Empty, Button, Typography, Space, Popconfirm, notification } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
+import { fireStoreDb } from "../../firebase/config";
 import { BookingItemType } from "../../types/BookingType";
 import "./BookingItem.scss";
 import { useCreateEditBookingContext } from "../../contexts/CreateEditBookingContext";
+import { deleteDoc, doc } from "firebase/firestore";
 
 const { Text } = Typography;
 
@@ -16,6 +22,26 @@ const BookingItem = ({
   selectedDate: Dayjs;
 }) => {
   const { openDetails } = useCreateEditBookingContext();
+  const [api, contextHolder] = notification.useNotification();
+
+  const deleteItem = useCallback(
+    (id: string) => {
+      const doc1 = ;
+      deleteDoc(doc(fireStoreDb, "booking", id))
+        .then(() => api.success({
+          message: 'Delete successful',
+      description:
+        `Successfully deleted the record with id: ${id}`,
+        }))
+        .catch((e) => api.error({
+          message: 'Delete successful',
+      description:
+        `Successfully deleted the record with id: ${id}`,
+        }));
+    },
+    [fireStoreDb]
+  );
+
   const title = useMemo(
     () => (info?.phone ? `${info.name}, ${info.phone}` : info?.name),
     [info]
@@ -26,15 +52,30 @@ const BookingItem = ({
         title={title}
         className="cardStyle"
         extra={
-          <Button
-            icon={<EditOutlined />}
-            type="text"
-            shape="circle"
-            onClick={() => openDetails(info)}
-          />
+          <>
+            <Button
+              icon={<EditOutlined />}
+              type="text"
+              shape="circle"
+              onClick={() => openDetails(info)}
+            />
+            {/* <Popconfirm
+              title="Delete"
+              description="Are you sure to delete this booking?"
+              icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+              onConfirm={() => deleteItem(info.id)}
+            >
+              <Button
+                icon={<DeleteOutlined style={{ color: "red" }} />}
+                type="text"
+                shape="circle"
+              />
+            </Popconfirm> */}
+          </>
         }
       >
         <Space direction="vertical">
+          {contextHolder}
           <Text>Date: {info.date}</Text>
           <Text>
             Address: {info.address} {info.place}

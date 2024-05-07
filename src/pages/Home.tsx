@@ -3,7 +3,7 @@ import { Calendar, Spin, Select, Typography, Row, Col } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import { BookingItemType } from "../types/BookingType";
-import { fireStore } from "../firebase/config";
+import { fireStoreDb } from "../firebase/config";
 import { collection, onSnapshot } from "firebase/firestore";
 import "./Home.scss";
 import BookingItem from "../components/BookingItem/BookingItem";
@@ -19,7 +19,7 @@ const Home = () => {
 
   useEffect(() => {
     setLoading(true);
-    const citiesCol = collection(fireStore, "booking");
+    const citiesCol = collection(fireStoreDb, "booking");
     onSnapshot(citiesCol, (snapshot) => {
       const bookings = snapshot.docs.map(
         (doc) => ({ ...doc.data(), id: doc.id } as BookingItemType)
@@ -33,8 +33,10 @@ const Home = () => {
   const getData = useCallback(
     (value: Dayjs) => {
       if (data) {
-        const valueUnix = value.startOf("d").unix();
-        return data.find((d: BookingItemType) => d.bookingDate === valueUnix);
+        return data.find(
+          (d: BookingItemType) =>
+            d.bookingDate && value.isSame(dayjs(d.bookingDate), "day")
+        );
       }
       return undefined;
     },

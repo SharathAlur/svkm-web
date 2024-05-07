@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Form, DatePicker, Input, Button, Modal, Flex } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import { fireStore } from "../../firebase/config";
+import { fireStoreDb } from "../../firebase/config";
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { useCreateEditBookingContext } from "../../contexts/CreateEditBookingContext";
 
@@ -15,13 +15,13 @@ const NewBooking = ({ bookedDates }: { bookedDates: number[] }) => {
     const objToSave = {
       ...values,
       date: bookingDate.format("DD MMM YYYY, dddd"),
-      bookingDate: bookingDate.unix(),
+      bookingDate: bookingDate.startOf("d").unix(),
       updatedAt: dayjs().unix(),
     };
     if (data) {
-      await setDoc(doc(fireStore, "booking", data.id), objToSave);
+      await setDoc(doc(fireStoreDb, "booking", data.id), objToSave);
     } else {
-      await addDoc(collection(fireStore, "booking"), {
+      await addDoc(collection(fireStoreDb, "booking"), {
         ...objToSave,
         createdAt: dayjs().unix(),
       });
@@ -39,6 +39,7 @@ const NewBooking = ({ bookedDates }: { bookedDates: number[] }) => {
         name: "",
         address: "",
         place: "",
+        phone: "",
       });
     }
   }, [data, form, selectedDate]);
@@ -63,7 +64,11 @@ const NewBooking = ({ bookedDates }: { bookedDates: number[] }) => {
             { required: true },
             () => ({
               validator(_, value) {
-                if (value && bookedDates.includes(value.startOf("D").unix())) {
+                if (
+                  !(data && data.id) &&
+                  value &&
+                  bookedDates.includes(value.startOf("D").unix())
+                ) {
                   return Promise.reject(
                     new Error("This date is not available!")
                   );
