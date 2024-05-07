@@ -1,5 +1,13 @@
 import React, { useCallback, useMemo } from "react";
-import { Card, Empty, Button, Typography, Space, Popconfirm, notification } from "antd";
+import {
+  Card,
+  Empty,
+  Button,
+  Typography,
+  Space,
+  Popconfirm,
+  notification,
+} from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -26,18 +34,19 @@ const BookingItem = ({
 
   const deleteItem = useCallback(
     (id: string) => {
-      const doc1 = ;
       deleteDoc(doc(fireStoreDb, "booking", id))
-        .then(() => api.success({
-          message: 'Delete successful',
-      description:
-        `Successfully deleted the record with id: ${id}`,
-        }))
-        .catch((e) => api.error({
-          message: 'Delete successful',
-      description:
-        `Successfully deleted the record with id: ${id}`,
-        }));
+        .then(() =>
+          api.success({
+            message: "Delete successful",
+            description: `Successfully deleted the record with id: ${id}`,
+          })
+        )
+        .catch((e) =>
+          api.error({
+            message: "Delete successful",
+            description: `Successfully deleted the record with id: ${id}`,
+          })
+        );
     },
     [fireStoreDb]
   );
